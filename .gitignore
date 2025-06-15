@@ -1,0 +1,25 @@
+# ========== Gradle ========== #
+.gradle/
+build/
+*/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# ========== Local Properties ========== #
+local.properties
+
+# ========== Android Studio ========== #
+.idea/
+*.iml
+.cxx/
+.externalNativeBuild/
+
+# ========== OS-specific Files ========== #
+.DS_Store    # macOS
+Thumbs.db    # Windows
+
+# ========== Log & Temp Files ========== #
+*.log
+*.tmp
+
+# ========== Keystore (if any, optional) ========== #
+*.jks
