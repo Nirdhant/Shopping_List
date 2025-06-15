@@ -16,6 +16,8 @@ class MainViewModel: ViewModel() {
     private val _sItem = mutableStateOf(listOf<Items>())
     val sItem : State<List<Items>> = _sItem
 
+    private val _editItemIndex = mutableStateOf<Int?>(null)
+
     private val _iName = mutableStateOf("")
     val iName: State<String> = _iName
 
@@ -24,6 +26,9 @@ class MainViewModel: ViewModel() {
 
     private val _showDialog = mutableStateOf(false)
     val showDialog: State<Boolean> = _showDialog
+
+    private val _showEditDialog = mutableStateOf(false)
+    val showEditDialog: State<Boolean> = _showEditDialog
 
     private val _location = mutableStateOf<LocationData?>(null)   //what if i use mutableStateFlow
     val location: State<LocationData?> = _location
@@ -39,24 +44,28 @@ class MainViewModel: ViewModel() {
                 qty = _iQty.value.toIntOrNull()?:0,
                 address = address
             )
+            _showDialog.value=false
             _sItem.value += newItem
             _iName.value=""
             _iQty.value=""
-            _showDialog.value=false
+            _address.value= emptyList()
         }
     }
 
     fun removeItem(item: Items){
         _sItem.value -= item
     }
-    fun setEditingItem(id: Int){
-        _sItem.value= _sItem.value.map{it.copy(isEditing = it.id == id)}
-    }
-    fun updateItem(id: Int, name: String, qty: Int, address: String) {
+    fun editItem(name: String, qty: String, address: String) {
         _sItem.value = _sItem.value.map {
-            if (it.id == id) { it.copy(name = name, qty = qty, address = address, isEditing = false) }
-            else { it.copy(isEditing = false) }
+            if(it.id == _editItemIndex.value){
+                it.copy(name=name ,qty = qty.toIntOrNull() ?: 0, address = address, isEditing = false)
+            }
+            else it
         }
+        _showEditDialog.value = false
+        _iName.value =""
+        _iQty.value =""
+        _address.value=emptyList()
     }
 
     fun updateName(name:String){
@@ -67,6 +76,20 @@ class MainViewModel: ViewModel() {
     }
     fun setDialog(show: Boolean){
         _showDialog.value=show
+    }
+    fun setEditDialog(show:Boolean,itemId:Int?=null){
+        itemId?.let {
+            _sItem.value.map {
+                if(it.id == itemId){
+                    _editItemIndex.value=it.id
+                    _iName.value=it.name
+                    _iQty.value=it.qty.toString()
+                    _showEditDialog.value =true
+                }
+                else _showEditDialog.value = false
+            }
+        }
+        _showEditDialog.value = show
     }
 
     fun updateLocation(newLocation: LocationData) { _location.value = newLocation }

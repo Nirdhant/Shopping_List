@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.example.shopping_list.shopping.model.Items
 
 @Composable
-fun Items(lastItemIndex:Int,obj:Items,onClick:()->Unit, onEdit:()->Unit, onDelete:()->Unit) {
+fun Items(lastItemIndex:Int, obj:Items, onAddClick:()->Unit, onEdit:()->Unit, onDelete:()->Unit) {
     Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
     Button(
         shape = RoundedCornerShape(12.dp),
@@ -56,7 +56,7 @@ fun Items(lastItemIndex:Int,obj:Items,onClick:()->Unit, onEdit:()->Unit, onDelet
         }
     }
         if(obj.id == lastItemIndex){
-            Badge(modifier=Modifier.padding(4.dp).fillMaxWidth().height(30.dp).clickable{onClick()}){
+            Badge(modifier=Modifier.padding(4.dp).fillMaxWidth().height(30.dp).clickable{onAddClick()}){
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
             }
         }
