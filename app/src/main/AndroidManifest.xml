@@ -13,7 +13,7 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/list_icon1"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Shopping_List"
+        android:theme="@style/Theme.Listo"
         tools:targetApi="31">
 
         <meta-data
@@ -23,10 +23,9 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.Shopping_List">
+            android:theme="@style/Theme.Listo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

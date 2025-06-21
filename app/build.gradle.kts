@@ -2,14 +2,15 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.shopping_list"
+    namespace = "com.example.listo"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.shopping_list"
+        applicationId = "com.example.listo"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -62,9 +63,12 @@ dependencies{
     //Retro
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    //Navi
+    //Navigation
     implementation("androidx.navigation:navigation-compose:2.9.0")
-
+    //firebase
+    implementation("com.google.firebase:firebase-analytics-ktx:22.4.0")
+    implementation("com.google.firebase:firebase-auth-ktx:23.2.1")
+    implementation("com.google.firebase:firebase-firestore-ktx:25.1.4")
 
     implementation("androidx.core:core-ktx:1.16.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.1")
