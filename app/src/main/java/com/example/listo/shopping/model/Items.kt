@@ -5,9 +5,9 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Items(
-    @PrimaryKey(autoGenerate = true) val id:Int,
+    @PrimaryKey val id:Int,
+    val userEmail: String,
     val name:String,
     val qty:Int,
     val address:String = "",
-    val isEditing:Boolean = false
 )

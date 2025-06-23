@@ -6,7 +6,7 @@ import com.example.listo.shopping.model.Items
 
 @Database(
     entities = [Items::class],
-    version = 1
+    version = 4
 )
 abstract class ItemsDatabase: RoomDatabase(){
     abstract val dao: ItemsDao

@@ -12,6 +12,11 @@ import com.example.listo.shopping.model.LocationData
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val itemsDao: ItemsDao): ViewModel() {
+    private val _userEmail = mutableStateOf("")
+
+    private val _userName = mutableStateOf("")
+    val userName: State<String> =_userName
+
     private val _sItem = mutableStateOf(listOf<Items>())
     val sItem : State<List<Items>> = _sItem
 
@@ -35,17 +40,21 @@ class MainViewModel(private val itemsDao: ItemsDao): ViewModel() {
 
     private val _editItemIndex = mutableStateOf<Int?>(null)
 
-    fun getItem(){
+    fun setUser(newEmail:String,newName:String){
+        _userEmail.value=newEmail
+        _userName.value=newName
+    }
+    fun getUserItems(newEmail: String,newName: String){
+        setUser(newEmail,newName)
         viewModelScope.launch{
-            itemsDao.getItems().collect{
-                _sItem.value=it
-            }
+            _sItem.value = itemsDao.getItems(_userEmail.value)
         }
     }
     fun addItem(address: String) {
         if (_iName.value.isNotBlank()){
             val newItem= Items(
                 id = _sItem.value.size+1,
+                userEmail = _userEmail.value,
                 name = _iName.value,
                 qty = _iQty.value.toIntOrNull()?:0,
                 address = address
@@ -63,12 +72,10 @@ class MainViewModel(private val itemsDao: ItemsDao): ViewModel() {
     fun editItem(name: String, qty: String, address: String) {
         _sItem.value = _sItem.value.map {
             if(it.id == _editItemIndex.value){
-                it.copy(name=name ,qty = qty.toIntOrNull() ?: 0, address = address, isEditing = false)
+                it.copy(name=name ,qty = qty.toIntOrNull() ?: 0, address = address)
             }
             else it
-
         }
-
         _showEditDialog.value = false
         _iName.value =""
         _iQty.value =""
@@ -76,6 +83,8 @@ class MainViewModel(private val itemsDao: ItemsDao): ViewModel() {
     }
 
     fun removeItem(item: Items){
+
+        _sItem.value -= item     //how this mutable list works
         viewModelScope.launch{
             itemsDao.deleteItem(item)
         }

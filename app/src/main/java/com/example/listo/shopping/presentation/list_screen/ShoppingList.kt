@@ -39,6 +39,7 @@ import com.example.listo.utils.LocationUtils
 
 @Composable
 fun Shopping(context: Context, navController: NavController, viewModel: MainViewModel, locationUtils: LocationUtils) {
+    val userName = viewModel.userName.value
     val sItem = viewModel.sItem.value
     val iName = viewModel.iName.value
     val iQty = viewModel.iQty.value
@@ -75,7 +76,7 @@ fun Shopping(context: Context, navController: NavController, viewModel: MainView
     }
 
     // --------------------- List Display ---------------------
-    DisplayList(sItem, viewModel)
+    DisplayList(userName,sItem,viewModel)
     // --------------------- Add/Edit Dialog ---------------------
     if (showDialog || showEditDialog) {
         LaunchedEffect(Unit) {

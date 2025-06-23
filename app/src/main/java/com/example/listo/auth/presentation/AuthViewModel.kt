@@ -30,28 +30,42 @@ class AuthViewModel:ViewModel() {
         _password.value = ""
     }
 
-    fun signUp(onResult:(Boolean,String?)-> Unit) {
+    fun signUp(onResult:(Pair<Boolean, String?>,Pair<String?, String?>)-> Unit) {
+
+        if(_name.value.isBlank() && _email.value.isBlank() && _password.value.isBlank()){
+            onResult(Pair(false,"Please Enter All The Fields"), Pair(null,null))
+            return
+        }
         auth.createUserWithEmailAndPassword(_email.value, _password.value).addOnCompleteListener {
             if (it.isSuccessful) {
                 val userId = it.result?.user?.uid
                 val user = User(userId!!, _email.value, _name.value)
-                fireStore.collection("users").document(userId).set(user).
+                fireStore.collection("users").document(_email.value).set(user).
                     addOnCompleteListener {
                         if (it.isSuccessful) {
-                            onResult(true, null)
+                            onResult(Pair(true, null), Pair(_email.value, _name.value))
                         } else {
-                            onResult(false, it.exception?.localizedMessage)
+                            onResult(Pair(false,it.exception?.localizedMessage),Pair(null,null))
                         }
                     }
             } else {
-                onResult(false, it.exception?.localizedMessage)
+                onResult(Pair(false,it.exception?.localizedMessage),Pair(null,null))
             }
         }
     }
-    fun login(onResult: (Boolean, String?) -> Unit){
+    fun login(onResult: (Pair<Boolean, String?>,Pair<String?,String?>) -> Unit){
+        if(_email.value.isBlank() && _password.value.isBlank()){
+            onResult(Pair(false,"Please Enter All The Fields"),Pair(null,null))
+            return
+        }
         auth.signInWithEmailAndPassword(_email.value,_password.value).addOnCompleteListener {
-            if (it.isSuccessful){ onResult(true,null) }
-            else{ onResult(false,it.exception?.localizedMessage) }
+            if (it.isSuccessful){
+                fireStore.collection("users").document(_email.value).get().addOnSuccessListener{
+                    _name.value=it.getString("name")?:"*_*"
+                    onResult(Pair(true,null), Pair(_email.value,_name.value))
+                }
+            }
+            else{ onResult(Pair(false,it.exception?.localizedMessage), Pair(null,null)) }
         }
     }
 }

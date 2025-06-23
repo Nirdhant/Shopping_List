@@ -29,7 +29,8 @@ import com.example.listo.utils.LocationUtils
 
 class MainActivity : ComponentActivity() {
     private val db by lazy {
-        Room.databaseBuilder(applicationContext, ItemsDatabase::class.java, "items.db").build()
+        Room.databaseBuilder(applicationContext, ItemsDatabase::class.java, "items.db")
+            .fallbackToDestructiveMigration(true).build()
     }
     private val viewModel by viewModels<MainViewModel>(
         factoryProducer = {
@@ -64,24 +65,25 @@ fun Navigation(navController: NavHostController, viewModel: MainViewModel,authVi
     NavHost(navController = navController, startDestination = "LoginScreen") {
         composable("LoginScreen") {
             LoginScreen(navController = navController, authViewModel = authViewModel) {
-                authViewModel.login { isSuccessful, messageString ->
-                    if (isSuccessful) {
-                        viewModel.getItem()
+                authViewModel.login { pairOfResult, pairOfValues->
+                    if (pairOfResult.first) {
+                        viewModel.getUserItems(pairOfValues.first!!,pairOfValues.second!!)
                         navController.navigate("Main_Screen") { popUpTo("LoginScreen") { inclusive = true } }
                     }
-                    else   Toast.makeText(context,messageString ?: "Something Went Wrong",Toast.LENGTH_LONG).show()
+                    else   Toast.makeText(context,pairOfResult.second ?: "Something Went Wrong",Toast.LENGTH_LONG).show()
                 }
             }
         }
         composable("SignUpScreen"){
             SignUpScreen(navController = navController, authViewModel = authViewModel){
-                authViewModel.signUp { isSuccessful, messageString->
-                    if(isSuccessful){
+                authViewModel.signUp { pairOfResult, pairOfValues->
+                    if(pairOfResult.first){
+                        viewModel.setUser(pairOfValues.first!!,pairOfValues.second!!)
                         navController.navigate("Main_Screen"){
                             popUpTo("SignUpScreen"){inclusive= true}
                         }
                     }
-                    else Toast.makeText(context,messageString ?: "Something Went Wrong",Toast.LENGTH_LONG).show()
+                    else Toast.makeText(context,pairOfResult.second ?: "Something Went Wrong",Toast.LENGTH_LONG).show()
                 }
             }
         }
