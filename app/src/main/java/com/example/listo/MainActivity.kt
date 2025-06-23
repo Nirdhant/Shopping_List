@@ -4,17 +4,21 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
 import com.example.listo.auth.presentation.AuthViewModel
 import com.example.listo.auth.presentation.LoginScreen
 import com.example.listo.auth.presentation.SignUpScreen
@@ -24,10 +28,22 @@ import com.example.listo.ui.theme.ListoTheme
 import com.example.listo.utils.LocationUtils
 
 class MainActivity : ComponentActivity() {
+    private val db by lazy {
+        Room.databaseBuilder(applicationContext, ItemsDatabase::class.java, "items.db").build()
+    }
+    private val viewModel by viewModels<MainViewModel>(
+        factoryProducer = {
+            object : ViewModelProvider.Factory{
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return MainViewModel(db.dao) as T
+                }
+            }
+        }
+    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val viewModel: MainViewModel = viewModel()
+           // val viewModel: MainViewModel = viewModel()
             val authViewModel: AuthViewModel= viewModel()
             val navController = rememberNavController()
             val context = applicationContext
@@ -50,6 +66,7 @@ fun Navigation(navController: NavHostController, viewModel: MainViewModel,authVi
             LoginScreen(navController = navController, authViewModel = authViewModel) {
                 authViewModel.login { isSuccessful, messageString ->
                     if (isSuccessful) {
+                        viewModel.getItem()
                         navController.navigate("Main_Screen") { popUpTo("LoginScreen") { inclusive = true } }
                     }
                     else   Toast.makeText(context,messageString ?: "Something Went Wrong",Toast.LENGTH_LONG).show()

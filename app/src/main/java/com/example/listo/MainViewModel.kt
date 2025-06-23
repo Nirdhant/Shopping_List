@@ -11,7 +11,7 @@ import com.example.listo.shopping.model.Items
 import com.example.listo.shopping.model.LocationData
 import kotlinx.coroutines.launch
 
-class MainViewModel: ViewModel() {
+class MainViewModel(private val itemsDao: ItemsDao): ViewModel() {
     private val _sItem = mutableStateOf(listOf<Items>())
     val sItem : State<List<Items>> = _sItem
 
@@ -34,6 +34,14 @@ class MainViewModel: ViewModel() {
     val address: State<List<AddressResult>> = _address
 
     private val _editItemIndex = mutableStateOf<Int?>(null)
+
+    fun getItem(){
+        viewModelScope.launch{
+            itemsDao.getItems().collect{
+                _sItem.value=it
+            }
+        }
+    }
     fun addItem(address: String) {
         if (_iName.value.isNotBlank()){
             val newItem= Items(
@@ -42,6 +50,9 @@ class MainViewModel: ViewModel() {
                 qty = _iQty.value.toIntOrNull()?:0,
                 address = address
             )
+            viewModelScope.launch{
+                itemsDao.upsertItem(newItem)
+            }
             _showDialog.value=false
             _sItem.value += newItem
             _iName.value=""
@@ -55,7 +66,9 @@ class MainViewModel: ViewModel() {
                 it.copy(name=name ,qty = qty.toIntOrNull() ?: 0, address = address, isEditing = false)
             }
             else it
+
         }
+
         _showEditDialog.value = false
         _iName.value =""
         _iQty.value =""
@@ -63,7 +76,9 @@ class MainViewModel: ViewModel() {
     }
 
     fun removeItem(item: Items){
-        _sItem.value =_sItem.value-item
+        viewModelScope.launch{
+            itemsDao.deleteItem(item)
+        }
     }
     fun updateName(name:String){
         _iName.value=name
