@@ -9,6 +9,8 @@ import com.example.listo.shopping.data.RetroFitClient
 import com.example.listo.shopping.model.AddressResult
 import com.example.listo.shopping.model.Items
 import com.example.listo.shopping.model.LocationData
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val itemsDao: ItemsDao): ViewModel() {
@@ -40,6 +42,9 @@ class MainViewModel(private val itemsDao: ItemsDao): ViewModel() {
 
     private val _editItemIndex = mutableStateOf<Int?>(null)
 
+    fun logOUt(){
+        Firebase.auth.signOut()
+    }
     fun setUser(newEmail:String,newName:String){
         _userEmail.value=newEmail
         _userName.value=newName

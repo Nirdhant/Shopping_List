@@ -76,7 +76,7 @@ fun Shopping(context: Context, navController: NavController, viewModel: MainView
     }
 
     // --------------------- List Display ---------------------
-    DisplayList(userName,sItem,viewModel)
+    DisplayList(userName,sItem,viewModel,navController)
     // --------------------- Add/Edit Dialog ---------------------
     if (showDialog || showEditDialog) {
         LaunchedEffect(Unit) {

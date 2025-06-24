@@ -26,6 +26,9 @@ import com.example.listo.shopping.presentation.list_screen.Shopping
 import com.example.listo.shopping.presentation.location_screen.LocationScreen
 import com.example.listo.ui.theme.ListoTheme
 import com.example.listo.utils.LocationUtils
+import com.example.listo.utils.firebaseUser
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 class MainActivity : ComponentActivity() {
     private val db by lazy {
@@ -61,33 +64,37 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Navigation(navController: NavHostController, viewModel: MainViewModel,authViewModel: AuthViewModel, locationUtils: LocationUtils) {
-    val context = LocalContext.current
-    NavHost(navController = navController, startDestination = "LoginScreen") {
+    val firebase = Firebase
+    val context = LocalContext.current    //should be removed or not
+    val startDestination = if(firebase.auth.currentUser!=null){
+        "Main_Screen"
+    }
+    else "LoginScreen"
+    NavHost(navController = navController, startDestination = startDestination) {
         composable("LoginScreen") {
             LoginScreen(navController = navController, authViewModel = authViewModel) {
-                authViewModel.login { pairOfResult, pairOfValues->
-                    if (pairOfResult.first) {
-                        viewModel.getUserItems(pairOfValues.first!!,pairOfValues.second!!)
+                authViewModel.login { isSuccessful,errorMessage->
+                    if (isSuccessful) {
                         navController.navigate("Main_Screen") { popUpTo("LoginScreen") { inclusive = true } }
                     }
-                    else   Toast.makeText(context,pairOfResult.second ?: "Something Went Wrong",Toast.LENGTH_LONG).show()
+                    else  Toast.makeText(context,errorMessage?:"Something Went Wrong",Toast.LENGTH_LONG).show()
                 }
             }
         }
         composable("SignUpScreen"){
             SignUpScreen(navController = navController, authViewModel = authViewModel){
-                authViewModel.signUp { pairOfResult, pairOfValues->
-                    if(pairOfResult.first){
-                        viewModel.setUser(pairOfValues.first!!,pairOfValues.second!!)
-                        navController.navigate("Main_Screen"){
-                            popUpTo("SignUpScreen"){inclusive= true}
-                        }
+                authViewModel.signUp { isSuccessful,errorMessage->
+                    if(isSuccessful){
+                        navController.navigate("Main_Screen"){ popUpTo("SignUpScreen"){inclusive= true} }
                     }
-                    else Toast.makeText(context,pairOfResult.second ?: "Something Went Wrong",Toast.LENGTH_LONG).show()
+                    else Toast.makeText(context,errorMessage?:"Something Went Wrong",Toast.LENGTH_LONG).show()
                 }
             }
         }
         composable("Main_Screen") {
+            firebaseUser(firebase, onResult = {userEmail,userName->
+                viewModel.getUserItems(userEmail,userName)
+            })
             Shopping(context = context, navController = navController, viewModel = viewModel, locationUtils = locationUtils)
         }
         composable("Location_Screen"){

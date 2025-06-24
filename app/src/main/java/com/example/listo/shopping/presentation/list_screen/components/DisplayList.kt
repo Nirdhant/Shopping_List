@@ -27,12 +27,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.listo.MainViewModel
 import com.example.listo.R
 import com.example.listo.shopping.model.Items
 
 @Composable
-fun DisplayList(userName:String,sItem: List<Items>, viewModel: MainViewModel) {
+fun DisplayList(userName:String,sItem: List<Items>, viewModel: MainViewModel,navController: NavController) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
         if (sItem.isEmpty()) {
                 Button(
@@ -61,7 +62,9 @@ fun DisplayList(userName:String,sItem: List<Items>, viewModel: MainViewModel) {
                     )
                 }
                 Badge(
-                    modifier = Modifier.align(Alignment.TopEnd).padding(2.dp).width(50.dp).height(30.dp).clickable{},
+                    modifier = Modifier.align(Alignment.TopEnd).padding(2.dp).width(50.dp).height(30.dp).clickable{
+                        viewModel.logOUt()
+                        navController.navigate("LoginScreen"){ popUpTo("Main_Screen"){ inclusive=true } }},
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer){
                     Icon(painter = painterResource(R.drawable.logout), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
