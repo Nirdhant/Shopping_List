@@ -28,14 +28,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.listo.MainViewModel
 import com.example.listo.R
 import com.example.listo.shopping.model.Items
+import com.example.listo.shopping.presentation.MainViewModel
 
 @Composable
 fun DisplayList(userName:String,sItem: List<Items>, viewModel: MainViewModel,navController: NavController) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-        if (sItem.isEmpty()) {
+    if (sItem.isEmpty()) {
                 Button(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -47,7 +46,7 @@ fun DisplayList(userName:String,sItem: List<Items>, viewModel: MainViewModel,nav
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = "Add Item", tint = MaterialTheme.colorScheme.onPrimaryContainer)
                 }
-        }
+    }
         Column(modifier = Modifier.fillMaxSize().padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Box(modifier = Modifier.fillMaxWidth()){
                 Badge(
@@ -85,8 +84,6 @@ fun DisplayList(userName:String,sItem: List<Items>, viewModel: MainViewModel,nav
                     )
                 }
             }
-
         }
-
-    }
 }
+

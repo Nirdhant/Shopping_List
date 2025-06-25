@@ -1,4 +1,4 @@
-package com.example.listo.utils
+package com.example.listo.shopping.presentation
 
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth

@@ -1,4 +1,4 @@
-package com.example.listo.utils
+package com.example.listo.core.presentation.utils
 
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions

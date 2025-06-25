@@ -1,4 +1,4 @@
-package com.example.listo.shopping.data
+package com.example.listo.shopping.data.networking
 
 import com.example.listo.shopping.model.GeocodingResponse
 import retrofit2.http.GET

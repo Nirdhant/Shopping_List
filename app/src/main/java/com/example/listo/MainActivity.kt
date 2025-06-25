@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
@@ -22,11 +23,13 @@ import androidx.room.Room
 import com.example.listo.auth.presentation.AuthViewModel
 import com.example.listo.auth.presentation.LoginScreen
 import com.example.listo.auth.presentation.SignUpScreen
+import com.example.listo.shopping.data.room.ItemsDatabase
+import com.example.listo.shopping.presentation.LocationUtils
+import com.example.listo.shopping.presentation.MainViewModel
+import com.example.listo.shopping.presentation.firebaseUser
 import com.example.listo.shopping.presentation.list_screen.Shopping
 import com.example.listo.shopping.presentation.location_screen.LocationScreen
 import com.example.listo.ui.theme.ListoTheme
-import com.example.listo.utils.LocationUtils
-import com.example.listo.utils.firebaseUser
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
@@ -47,15 +50,21 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-           // val viewModel: MainViewModel = viewModel()
             val authViewModel: AuthViewModel= viewModel()
             val navController = rememberNavController()
+            val firebase = Firebase
             val context = applicationContext
             val locationUtils = LocationUtils(context)
 
             ListoTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Navigation(navController = navController, viewModel = viewModel,authViewModel=authViewModel, locationUtils = locationUtils)
+                    Navigation(
+                        navController = navController,
+                        viewModel = viewModel,
+                        authViewModel=authViewModel,
+                        firebase=firebase,
+                        locationUtils = locationUtils
+                    )
                 }
             }
         }
@@ -63,16 +72,24 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Navigation(navController: NavHostController, viewModel: MainViewModel,authViewModel: AuthViewModel, locationUtils: LocationUtils) {
-    val firebase = Firebase
+fun Navigation(
+    navController: NavHostController,
+    viewModel: MainViewModel,
+    authViewModel: AuthViewModel,
+    firebase: Firebase,
+    locationUtils: LocationUtils
+) {
     val context = LocalContext.current    //should be removed or not
-    val startDestination = if(firebase.auth.currentUser!=null){
-        "Main_Screen"
-    }
-    else "LoginScreen"
-    NavHost(navController = navController, startDestination = startDestination) {
+    val startDestination =
+        if(firebase.auth.currentUser!=null){ "Main_Screen" }
+        else "LoginScreen"
+    NavHost(navController = navController, startDestination = startDestination)
+    {
         composable("LoginScreen") {
-            LoginScreen(navController = navController, authViewModel = authViewModel) {
+            LoginScreen(
+                navController = navController,
+                authViewModel = authViewModel
+            ) {
                 authViewModel.login { isSuccessful,errorMessage->
                     if (isSuccessful) {
                         navController.navigate("Main_Screen") { popUpTo("LoginScreen") { inclusive = true } }
@@ -82,20 +99,29 @@ fun Navigation(navController: NavHostController, viewModel: MainViewModel,authVi
             }
         }
         composable("SignUpScreen"){
-            SignUpScreen(navController = navController, authViewModel = authViewModel){
+            SignUpScreen(
+                navController = navController,
+                authViewModel = authViewModel
+            ){
                 authViewModel.signUp { isSuccessful,errorMessage->
-                    if(isSuccessful){
-                        navController.navigate("Main_Screen"){ popUpTo("SignUpScreen"){inclusive= true} }
-                    }
+                    if(isSuccessful){ navController.navigate("Main_Screen"){ popUpTo("SignUpScreen"){inclusive= true} } }
                     else Toast.makeText(context,errorMessage?:"Something Went Wrong",Toast.LENGTH_LONG).show()
                 }
             }
         }
         composable("Main_Screen") {
-            firebaseUser(firebase, onResult = {userEmail,userName->
-                viewModel.getUserItems(userEmail,userName)
+            LaunchedEffect(Unit) {
+                viewModel.setLoading(true)
+            }
+            firebaseUser(firebase, onResult = { userEmail, userName ->
+                viewModel.getUserItems(userEmail, userName)
             })
-            Shopping(context = context, navController = navController, viewModel = viewModel, locationUtils = locationUtils)
+            Shopping(
+                context = context,
+                navController = navController,
+                viewModel = viewModel,
+                locationUtils = locationUtils
+            )
         }
         composable("Location_Screen"){
             viewModel.location.value?.let { currentLocation ->

@@ -32,13 +32,14 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
 import com.example.listo.MainActivity
-import com.example.listo.MainViewModel
+import com.example.listo.core.presentation.utils.CustomOutlinedTextField
+import com.example.listo.shopping.presentation.LocationUtils
+import com.example.listo.shopping.presentation.MainViewModel
 import com.example.listo.shopping.presentation.list_screen.components.DisplayList
-import com.example.listo.utils.CustomOutlinedTextField
-import com.example.listo.utils.LocationUtils
 
 @Composable
 fun Shopping(context: Context, navController: NavController, viewModel: MainViewModel, locationUtils: LocationUtils) {
+    val isLoading = viewModel.isLoading.value
     val userName = viewModel.userName.value
     val sItem = viewModel.sItem.value
     val iName = viewModel.iName.value
@@ -76,7 +77,10 @@ fun Shopping(context: Context, navController: NavController, viewModel: MainView
     }
 
     // --------------------- List Display ---------------------
-    DisplayList(userName,sItem,viewModel,navController)
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        if (isLoading) { CircularProgressIndicator() }
+        else DisplayList(userName, sItem, viewModel, navController)
+    }
     // --------------------- Add/Edit Dialog ---------------------
     if (showDialog || showEditDialog) {
         LaunchedEffect(Unit) {

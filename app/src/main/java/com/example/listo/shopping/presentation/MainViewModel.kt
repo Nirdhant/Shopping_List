@@ -1,11 +1,12 @@
-package com.example.listo
+package com.example.listo.shopping.presentation
 
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.listo.shopping.data.RetroFitClient
+import com.example.listo.shopping.data.networking.RetroFitClient
+import com.example.listo.shopping.data.room.ItemsDao
 import com.example.listo.shopping.model.AddressResult
 import com.example.listo.shopping.model.Items
 import com.example.listo.shopping.model.LocationData
@@ -21,6 +22,8 @@ class MainViewModel(private val itemsDao: ItemsDao): ViewModel() {
 
     private val _sItem = mutableStateOf(listOf<Items>())
     val sItem : State<List<Items>> = _sItem
+
+    private val _newItem =mutableStateOf<Items?>(null)
 
     private val _iName = mutableStateOf("")
     val iName: State<String> = _iName
@@ -42,6 +45,12 @@ class MainViewModel(private val itemsDao: ItemsDao): ViewModel() {
 
     private val _editItemIndex = mutableStateOf<Int?>(null)
 
+    private val _isLoading = mutableStateOf(false)
+    val isLoading : State<Boolean> = _isLoading
+
+    fun setLoading(value: Boolean){
+    _isLoading.value=value
+    }
     fun logOUt(){
         Firebase.auth.signOut()
     }
@@ -53,22 +62,28 @@ class MainViewModel(private val itemsDao: ItemsDao): ViewModel() {
         setUser(newEmail,newName)
         viewModelScope.launch{
             _sItem.value = itemsDao.getItems(_userEmail.value)
+            setLoading(false)
         }
     }
     fun addItem(address: String) {
         if (_iName.value.isNotBlank()){
-            val newItem= Items(
-                id = _sItem.value.size+1,
+            _newItem.value= Items(
+                id = _sItem.value.maxOfOrNull { it.id }?.plus(1) ?: 1,
                 userEmail = _userEmail.value,
                 name = _iName.value,
                 qty = _iQty.value.toIntOrNull()?:0,
                 address = address
             )
-            viewModelScope.launch{
-                itemsDao.upsertItem(newItem)
+            viewModelScope.launch {
+                try {
+                    itemsDao.upsertItem(_newItem.value!!)
+                } catch (e: Exception) {
+                    Log.e("AddItemCrash", "Failed to insert: ${e.message}")
+                }
             }
+
             _showDialog.value=false
-            _sItem.value += newItem
+            _sItem.value +=_newItem.value!!
             _iName.value=""
             _iQty.value=""
             _address.value= emptyList()
@@ -77,9 +92,19 @@ class MainViewModel(private val itemsDao: ItemsDao): ViewModel() {
     fun editItem(name: String, qty: String, address: String) {
         _sItem.value = _sItem.value.map {
             if(it.id == _editItemIndex.value){
+                _newItem.value = Items(
+                    id= it.id,
+                    userEmail = it.userEmail,
+                    name = name,
+                    qty = qty.toIntOrNull() ?: 0,
+                    address = address
+                )
                 it.copy(name=name ,qty = qty.toIntOrNull() ?: 0, address = address)
             }
             else it
+        }
+        viewModelScope.launch{
+            itemsDao.upsertItem(_newItem.value!!)
         }
         _showEditDialog.value = false
         _iName.value =""

@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.listo.R
-import com.example.listo.utils.CustomOutlinedTextField
+import com.example.listo.core.presentation.utils.CustomOutlinedTextField
 
 @Composable
 fun LoginScreen(navController: NavController, authViewModel: AuthViewModel, onLogin:()->Unit) {

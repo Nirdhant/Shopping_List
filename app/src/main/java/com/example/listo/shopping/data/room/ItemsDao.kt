@@ -1,4 +1,4 @@
-package com.example.listo
+package com.example.listo.shopping.data.room
 
 import androidx.room.Dao
 import androidx.room.Delete

@@ -1,4 +1,4 @@
-package com.example.listo.utils
+package com.example.listo.shopping.presentation
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Looper
 import androidx.core.content.ContextCompat
-import com.example.listo.MainViewModel
 import com.example.listo.shopping.model.LocationData
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
